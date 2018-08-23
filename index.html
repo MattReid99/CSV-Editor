@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CSV Editor</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- <script src="vendor/jquery/jquery.min.js"></script> -->
+  <style>
+  body {
+    font-family: "Lato", sans-serif;
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .default-btn {
+    background-color: #7B9980; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+  }
+
+  .sidenav {
+    height: 100%;
+    width: 300px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #E5EAEA;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+
+  .sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #444547;
+    display: block;
+  }
+
+  .sidenav a:hover {
+    background-color: #87976C;
+    color: #f1f1f1;
+  }
+
+  .main {
+    margin-left: 300px; /* Same as the width of the sidenav */
+    font-size: 28px; /* Increased text to enable scrolling */
+    padding: 0px 10px;
+  }
+
+  /* The Modal (background) */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  /* The Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  @media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+  }
+  </style>
+</head>
+
+<body style="background-color: #c5c8cc">
+
+  <div id="addColumnModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close" onclick="closeModals()">&times;</span>
+      <p>Add column</p>
+      <span>Column name<input type="text" style="margin: 10px; width: 40%;" id="columnName"></input></span>
+      <span>Default value (optional)<input type="text" style="margin: 10px; width: 40%;" id="defaultColumnValue"></input></span>
+      <button class="default-btn" onclick="setColumnAdded()" style="margin: 10px; width: 50%;">Done</button>
+    </form>
+  </div>
+</div>
+
+<div id="deleteColumnAtIndexModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" onclick="closeModals()">&times;</span>
+    <p>Delete column at index</p>
+    <input type="text" id="columnIndex"></input>
+    <button class="default-btn" onclick="setColumnDeleted()" style="margin: 10px; width: 50%;">Done</button>
+  </form>
+</div>
+</div>
+
+<div id="deleteRowAtIndexModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" onclick="closeModals()">&times;</span>
+    <p>Delete row at index</p>
+    <input type="text" id="rowIndex"></input>
+    <button class="default-btn" onclick="setRowDeletedAtIndex()" style="margin: 10px; width: 50%;">Done</button>
+  </form>
+</div>
+</div>
+
+<div id="deleteRowIfModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" onclick="closeModals()">&times;</span>
+    <p>Delete row IF contains: </p>
+    <input type="text" id="removedWord"></input>
+    <button class="default-btn" onclick="setRowDeletedIf()" style="margin: 10px; width: 50%;">Done</button>
+  </form>
+</div>
+</div>
+
+<div id="addRowModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" onclick="closeModals()">&times;</span>
+    <p>Add row</p>
+    <div id="columnDisplay">
+      <input type="text" id="col1" style="margin: 5px; width: 40%;"></input>
+    </div>
+    <button class="default-btn" onclick="setAddRow()" style="margin: 10px; width: 50%;">Done</button>
+  </form>
+</div>
+</div>
+
+<div class="sidenav">
+
+  <ul>
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayDeleteColumnModal(); return false;">Delete column at index</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayAddColumnModal(); return false;">Add empty column</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayAddColumnModal(); return false;">Add column with default value</a>
+    </li>
+  </ul>
+
+  <ul style="margin-top: 80px;">
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayAddRowModal(); return false;">Add row(s)</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayRowDeletedAtModal(); return false;">Delete row at index</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="displayDeleteRowIfModal(); return false;">Delete row IF contains</a>
+    </li>
+  </ul>
+</div>
+
+<!-- Page Content -->
+<div class="main">
+  <div class="container" style="margin-top: 100px;">
+    <div class="row">
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="comment">Original</label>
+          <textarea class="form-control" rows="25" id="inputText"></textarea>
+          <button class="default-btn" onclick="confirmTexts()" style="margin-top: 20px;">Confirm</button><span><button class="default-btn" onclick="cancelOutput()" style="margin-top: 20px; margin-left: 20px;">Cancel</button></span>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="comment">Preview</label>
+          <textarea readonly class="form-control" rows="25" id="outputText"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /#page-content-wrapper -->
+
+<!-- Bootstrap core JavaScript -->
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="fileOperation.js"></script>
+
+<script>
+$(document).ready(function() {
+
+});
+
+function closeModals() {
+  var m1 = document.getElementById('deleteColumnAtIndexModal');
+  var m2 = document.getElementById('addColumnModal');
+  var m3 = document.getElementById('deleteRowAtIndexModal');
+  var m4 = document.getElementById('deleteRowIfModal');
+  var m5 = document.getElementById('addRowModal');
+
+  m1.style.display = "none";
+  m2.style.display = "none";
+  m3.style.display = "none";
+  m4.style.display = "none";
+  m5.style.display = "none";
+}
+
+
+function setColumnAdded() {
+  var modal = document.getElementById('addColumnModal');
+  modal.style.display = "none";
+
+  if ($('#columnName').val().replace(/\s+/g, '').length > 1) {
+    if ($('#defaultColumnValue').val().replace(/\s+/g, '').length > 1) {
+      var output = addColumnWithWord($('#inputText').val(), $('#columnName').val(), $('#defaultColumnValue').val());
+      $('#outputText').val(output);
+    }
+    else {
+      var output = addColumn($('#inputText').val(), $('#columnName').val());
+      $('#outputText').val(output);
+    }
+  }
+  else alert('Column name missing');
+}
+
+function displayAddColumnModal() {
+  var modal = document.getElementById('addColumnModal');
+  modal.style.display = "block";
+}
+
+function displayDeleteColumnModal() {
+  var modal = document.getElementById('deleteColumnAtIndexModal');
+  modal.style.display = "block";
+}
+
+function displayRowDeletedAtModal() {
+  var modal = document.getElementById('deleteRowAtIndexModal');
+  modal.style.display = "block";
+}
+
+function displayDeleteRowIfModal() {
+  var modal = document.getElementById('deleteRowIfModal');
+  modal.style.display = "block";
+}
+
+function displayAddRowModal() {
+
+  var modal = document.getElementById('addRowModal');
+
+  var numColumns = getNumberOfColumns($('#inputText').val());
+  var inner = "";
+
+  if (isNaN(numColumns) || numColumns < 1) {
+    alert("Invalid data");
+  }
+  else {
+    for (var i=0; i<numColumns; i++) {
+      inner += '<input type="text" id="col'+i+'" style="margin: 5px; width: 40%;"></input>';
+    }
+    document.getElementById("columnDisplay").innerHTML = inner;
+    modal.style.display = "block";
+  }
+}
+
+// DELETE COLUMN AT INDEX
+
+
+function setColumnDeleted() {
+  var modal = document.getElementById('deleteColumnAtIndexModal');
+  modal.style.display = "none";
+
+  var index = parseInt($('#columnIndex').val());
+  if (!isNaN(index)) {
+    $('#outputText').val(deleteColumnAtIndex(index, $('#inputText').val()));
+  }
+  else alert('Please enter a valid column index');
+}
+
+
+function setAddRow() {
+  var m5 = document.getElementById('addRowModal');
+
+  var index = 0;
+  var values = [];
+
+  while ($('#col'+index).length > 0) {
+    values.push(document.getElementById("col"+index).value);
+    index++;
+  }
+
+  var txt = $('#inputText').val();
+  var newRow = addRow(values);
+  $('#outputText').val(txt+newRow);
+  m5.style.display = "none";
+}
+
+function setRowDeletedAtIndex() {
+  var modal = document.getElementById('deleteRowAtIndexModal');
+  modal.style.display = "none";
+
+  var value = parseInt($('#rowIndex').val());
+
+  if (isNaN(value)) {
+    alert('Please enter a valid row index');
+  }
+  else {
+    var txt = deleteRow($('#inputText').val(), value);
+    if (txt != null) {
+      $('#outputText').val(txt);
+    }
+  }
+}
+
+function setRowDeletedIf() {
+  var modal = document.getElementById('deleteRowIfModal');
+  modal.style.display = "none";
+
+  var word = $('#removedWord').val();
+  var data = $('#inputText').val();
+
+  if (word == null || word.length < 1) {
+    alert('Please enter a string/character');
+  }
+  else {
+    var output = deleteWhere(word, data);
+    $('#outputText').val(output);
+  }
+}
+
+
+// set text of output field to input field
+function confirmTexts() {
+  if ($('#outputText').val().length > 1) {
+    $('#inputText').val($('#outputText').val());
+    $('#outputText').val('');
+  }
+}
+
+function cancelOutput() {
+  $('#outputText').val('');
+}
+
+
+
+</script>
+
+
+<script>
+// You can also require other files to run in this process
+require('./renderer.js')
+</script>
+</body>
+</html>
