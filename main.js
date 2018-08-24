@@ -12,7 +12,14 @@ let addWindow;
 // Listen for app to be ready
 app.on('ready', function(){
   // Create new window
-  mainWindow = new BrowserWindow({});
+  mainWindow = new BrowserWindow({ frame:true,
+    width: 1200,
+    height: 800,
+    minWidth: 1024,
+    minHeight: 565,
+    resizable: true,
+    icon:'CSV-Editor.png'
+  });
   // Load html in window
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
@@ -31,22 +38,22 @@ app.on('ready', function(){
 });
 
 // Handle add item window
-function createFileBrowseWindow(){
-  addWindow = new BrowserWindow({
-    width: 300,
-    height:200,
-    title:'Choose a file'
-  });
-  addWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'addWindow.html'),
-    protocol: 'file:',
-    slashes:true
-  }));
-  // Handle garbage collection
-  addWindow.on('close', function(){
-    addWindow = null;
-  });
-}
+// function createFileBrowseWindow(){
+//   addWindow = new BrowserWindow({
+//     width: 900,
+//     height: 600,
+//     title:'Choose a file'
+//   });
+//   addWindow.loadURL(url.format({
+//     pathname: path.join(__dirname, 'addWindow.html'),
+//     protocol: 'file:',
+//     slashes:true
+//   }));
+//   // Handle garbage collection
+//   addWindow.on('close', function(){
+//     addWindow = null;
+//   });
+// }
 
 // Catch item:add
 ipcMain.on('item:add', function(e, item){
